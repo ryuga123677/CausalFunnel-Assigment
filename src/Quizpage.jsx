@@ -25,11 +25,9 @@ export const Quiz = () => {
   }, [timeLeft, dispatch]);
 
   // Handle answer selection
- // Inside App.jsx
-const handleAnswer = (questionId, answer) => {
-  dispatch(setAnswer({ questionId, answer }));
-};
-
+  const handleAnswer = (questionId, answer) => {
+    dispatch(setAnswer({ questionId, answer }));
+  };
 
   // Handle manual submission
   const handleSubmit = () => {
@@ -43,31 +41,33 @@ const handleAnswer = (questionId, answer) => {
   const currentQuestion = questions[currentQuestionIndex];
 
   return (
-    <div className="p-6 max-w-7xl mx-auto flex gap-4">
+    <div className="p-6 max-w-7xl mx-auto flex gap-4 flex-col lg:flex-row">
       {/* Overview Panel */}
       <OverviewPanel />
 
       {/* Quiz Section */}
-      <div className="flex-1">
+      <div className="flex-1 w-full lg:w-3/4">
         {!isSubmitted ? (
           <div>
             {/* Timer and Question */}
             <div className="flex justify-between items-center mb-4">
               <h1 className="text-2xl font-bold text-sky-400">CausalFunnel Quiz App</h1>
               <div>Email-{localStorage.getItem('userEmail')}</div>
-              <div className="text-red-600">Time Left: {Math.floor(timeLeft / 60)}:{String(timeLeft % 60).padStart(2, "0")}</div>
+              <div className="text-red-600">
+                Time Left: {Math.floor(timeLeft / 60)}:{String(timeLeft % 60).padStart(2, "0")}
+              </div>
             </div>
 
             {/* Current Question */}
             <div className="mb-6 mt-10">
               <h2 className="text-xl font-semibold">
-                Question {currentQuestionIndex +1}: {currentQuestion.question}
+                Question {currentQuestionIndex + 1}: {currentQuestion.question}
               </h2>
               <div className="space-y-2">
                 {currentQuestion.options.map((option, idx) => (
                   <button
                     key={idx}
-                    className={`block w-full p-2 rounded ${
+                    className={`block w-full p-3 rounded-md transition-colors duration-300 ${
                       currentQuestion.userAnswer === option ? 'bg-blue-500 text-white' : 'bg-gray-200'
                     }`}
                     onClick={() => handleAnswer(currentQuestion.id, option)}
@@ -79,18 +79,18 @@ const handleAnswer = (questionId, answer) => {
             </div>
 
             {/* Navigation Buttons */}
-            <div className="flex justify-between">
+            <div className="flex justify-between mb-4">
               <button
                 disabled={currentQuestionIndex === 0}
                 onClick={() => dispatch(goToQuestion(currentQuestionIndex - 1))}
-                className="px-4 py-2 bg-gray-300 rounded"
+                className="px-4 py-2 bg-gray-300 rounded-md w-full sm:w-auto"
               >
                 Previous
               </button>
               <button
                 disabled={currentQuestionIndex === questions.length - 1}
                 onClick={() => dispatch(goToQuestion(currentQuestionIndex + 1))}
-                className="px-4 py-2 bg-gray-300 rounded"
+                className="px-4 py-2 bg-gray-300 rounded-md w-full sm:w-auto"
               >
                 Next
               </button>
@@ -99,7 +99,7 @@ const handleAnswer = (questionId, answer) => {
             {/* Submit Button */}
             <button
               onClick={handleSubmit}
-              className="mt-4 px-4 py-2 bg-green-500 text-white rounded"
+              className="mt-4 px-4 py-2 bg-green-500 text-white rounded-md w-full sm:w-auto"
             >
               Submit Quiz
             </button>
@@ -111,15 +111,9 @@ const handleAnswer = (questionId, answer) => {
             <ul className="mt-4 space-y-2">
               {questions.map((q) => (
                 <li key={q.id} className="p-2 rounded bg-gray-200">
-                  <p>
-                    <strong>Q:{q.id}</strong> {q.question}
-                  </p>
-                  <p>
-                    <strong>Your Answer:</strong> {q.userAnswer || 'Not Answered'}
-                  </p>
-                  <p>
-                    <strong>Correct Answer:</strong> {q.correctAnswer}
-                  </p>
+                  <p><strong>Q:</strong> {q.id} {q.question}</p>
+                  <p><strong>Your Answer:</strong> {q.userAnswer || 'Not Answered'}</p>
+                  <p><strong>Correct Answer:</strong> {q.correctAnswer}</p>
                 </li>
               ))}
             </ul>
@@ -129,6 +123,3 @@ const handleAnswer = (questionId, answer) => {
     </div>
   );
 };
-
-// Wrap with Provider
-
