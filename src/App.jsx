@@ -1,7 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import {StartPage} from "./Startpage";
-import {Quiz} from "./Quizpage"; // Your quiz page component
+import {Quiz} from "./Quizpage"; 
 
 const App = () => {
   return (

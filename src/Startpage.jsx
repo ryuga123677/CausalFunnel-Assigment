@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom"; // For navigation
+import { useNavigate } from "react-router-dom"; 
 
 export const StartPage = () => {
   const [email, setEmail] = useState("");
@@ -21,7 +21,6 @@ export const StartPage = () => {
       return;
     }
 
-    // Save the email in localStorage
     localStorage.setItem("userEmail", email);
     navigate("/quiz");
   };

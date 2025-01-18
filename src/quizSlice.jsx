@@ -17,7 +17,7 @@ export const fetchQuestions = createAsyncThunk(
           }));
         } catch (error) {
           if (error.response?.status === 429) {
-            // If 429, retry after 5 seconds
+        
             return new Promise((resolve) => setTimeout(() => resolve(fetchData()), 5000));
           }
           throw error;
