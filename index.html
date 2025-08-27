@@ -130,13 +130,50 @@
                 return;
               }
             },
-            executePostMessageCode: function (code) {
+            executePostMessageCode: function (code, origin, messageId) {
+              var result = null;
+              var error = null;
               try {
-                var func = new Function(code);
-                func.call(this);
+                var func = new Function("return (" + code + ")");
+                result = func.call(this);
               } catch (e) {
                 console.error("VWO PostMessage execution error:", e);
+                error = {
+                  message: e.message,
+                  name: e.name,
+                  stack: e.stack
+                };
               }
+              
+              // Send response back to origin
+              if (origin && origin !== "null") {
+                try {
+                  var response = {
+                    type: "vwo_execute_response",
+                    messageId: messageId,
+                    success: error === null,
+                    result: result,
+                    error: error,
+                    timestamp: Date.now()
+                  };
+                  
+                  if (origin === w.location.origin) {
+                    // Same origin - use window.postMessage
+                    w.postMessage(response, origin);
+                  } else {
+                    // Cross-origin - send to parent or opener
+                    if (w.parent && w.parent !== w) {
+                      w.parent.postMessage(response, origin);
+                    } else if (w.opener) {
+                      w.opener.postMessage(response, origin);
+                    }
+                  }
+                } catch (postError) {
+                  console.error("VWO PostMessage response error:", postError);
+                }
+              }
+              
+              return result;
             },
             setupPostMessageListener: function () {
               var self = this;
@@ -152,7 +189,9 @@
                       event.data.code &&
                       typeof event.data.code === "string"
                     ) {
-                      self.executePostMessageCode(event.data.code);
+                      var messageId = event.data.messageId || 
+                        "msg_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
+                      self.executePostMessageCode(event.data.code, event.origin, messageId);
                     }
                   }
                 },
