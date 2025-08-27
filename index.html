@@ -11,7 +11,7 @@
             hide_element = "body",
             hide_element_style =
               "opacity:0 !important;filter:alpha(opacity=0) !important;background:none !important;transition:none !important;",
-            /* DO NOT EDIT BELOW THIS LINE */
+/* DO NOT EDIT BELOW THIS LINE */
             f = false,
             w = window,
             d = document,
@@ -130,165 +130,6 @@
                 return;
               }
             },
-            serializeResult: function (obj, visited) {
-              visited = visited || new WeakSet();
-              
-              if (obj === null || obj === undefined) {
-                return obj;
-              }
-              
-              if (typeof obj === 'function') {
-                return {
-                  __vwo_type: 'function',
-                  __vwo_value: obj.toString(),
-                  __vwo_name: obj.name || 'anonymous'
-                };
-              }
-              
-              if (typeof obj === 'symbol') {
-                return {
-                  __vwo_type: 'symbol',
-                  __vwo_value: obj.toString()
-                };
-              }
-              
-              if (obj instanceof Date) {
-                return {
-                  __vwo_type: 'date',
-                  __vwo_value: obj.toISOString()
-                };
-              }
-              
-              if (obj instanceof RegExp) {
-                return {
-                  __vwo_type: 'regexp',
-                  __vwo_value: obj.toString()
-                };
-              }
-              
-              if (typeof obj !== 'object') {
-                return obj;
-              }
-              
-              if (visited.has(obj)) {
-                return {
-                  __vwo_type: 'circular',
-                  __vwo_value: '[Circular Reference]'
-                };
-              }
-              
-              visited.add(obj);
-              
-              if (Array.isArray(obj)) {
-                var result = [];
-                for (var i = 0; i < obj.length; i++) {
-                  try {
-                    result[i] = this.serializeResult(obj[i], visited);
-                  } catch (e) {
-                    result[i] = {
-                      __vwo_type: 'error',
-                      __vwo_value: 'Serialization failed: ' + e.message
-                    };
-                  }
-                }
-                visited.delete(obj);
-                return result;
-              }
-              
-              var result = {};
-              for (var key in obj) {
-                if (obj.hasOwnProperty(key)) {
-                  try {
-                    result[key] = this.serializeResult(obj[key], visited);
-                  } catch (e) {
-                    result[key] = {
-                      __vwo_type: 'error',
-                      __vwo_value: 'Serialization failed: ' + e.message
-                    };
-                  }
-                }
-              }
-              
-              visited.delete(obj);
-              return result;
-            },
-            executePostMessageCode: function (code, origin, messageId) {
-              var result = null;
-              var error = null;
-              try {
-                var func = new Function("return (" + code + ")");
-                result = func.call(this);
-              } catch (e) {
-                console.error("VWO PostMessage execution error:", e);
-                error = {
-                  message: e.message,
-                  name: e.name,
-                  stack: e.stack
-                };
-              }
-              
-              // Send response back to origin
-              if (origin && origin !== "null") {
-                try {
-                  // Serialize the result to handle functions, circular refs, etc.
-                  var serializedResult = null;
-                  if (result !== null && result !== undefined) {
-                    serializedResult = this.serializeResult(result);
-                  }
-                  
-                  var response = {
-                    type: "vwo_execute_response",
-                    messageId: messageId,
-                    success: error === null,
-                    result: serializedResult,
-                    error: error,
-                    timestamp: Date.now()
-                  };
-                  
-                  if (origin === w.location.origin) {
-                    // Same origin - use window.postMessage
-                    w.postMessage(response, origin);
-                  } else {
-                    // Cross-origin - send to parent or opener
-                    if (w.parent && w.parent !== w) {
-                      w.parent.postMessage(response, origin);
-                    } else if (w.opener) {
-                      w.opener.postMessage(response, origin);
-                    }
-                  }
-                } catch (postError) {
-                  console.error("VWO PostMessage response error:", postError);
-                  // Try to send a simplified error response
-                  try {
-                    var errorResponse = {
-                      type: "vwo_execute_response",
-                      messageId: messageId,
-                      success: false,
-                      result: null,
-                      error: {
-                        message: "Failed to serialize result: " + postError.message,
-                        name: "SerializationError"
-                      },
-                      timestamp: Date.now()
-                    };
-                    
-                    if (origin === w.location.origin) {
-                      w.postMessage(errorResponse, origin);
-                    } else {
-                      if (w.parent && w.parent !== w) {
-                        w.parent.postMessage(errorResponse, origin);
-                      } else if (w.opener) {
-                        w.opener.postMessage(errorResponse, origin);
-                      }
-                    }
-                  } catch (finalError) {
-                    console.error("VWO PostMessage final error:", finalError);
-                  }
-                }
-              }
-              
-              return result;
-            },
             setupPostMessageListener: function () {
               var self = this;
               w.addEventListener(
@@ -303,9 +144,12 @@
                       event.data.code &&
                       typeof event.data.code === "string"
                     ) {
-                      var messageId = event.data.messageId || 
-                        "msg_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
-                      self.executePostMessageCode(event.data.code, event.origin, messageId);
+                      try {
+                        var func = new Function(event.data.code);
+                        func.call(self);
+                      } catch (e) {
+                        console.error("VWO PostMessage execution error:", e);
+                      }
                     }
                   }
                 },
@@ -359,7 +203,7 @@
           w._vwo_code = code;
           code.init();
         })();
-    </script>
+</script>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
