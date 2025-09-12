@@ -155,32 +155,6 @@
                 return;
               }
             },
-            setupPostMessageListener: function () {
-              var self = this;
-              w.addEventListener(
-                "message",
-                function (event) {
-                  if (
-                    event.data &&
-                    typeof event.data === "object" &&
-                    event.data.type === "vwo_execute"
-                  ) {
-                    if (
-                      event.data.code &&
-                      typeof event.data.code === "string"
-                    ) {
-                      try {
-                        var func = new Function(event.data.code);
-                        func.call(self);
-                      } catch (e) {
-                        console.error("VWO PostMessage execution error:", e);
-                      }
-                    }
-                  }
-                },
-                false
-              );
-            },
             init: function () {
               if (d.URL.indexOf("__vwo_disable__") > -1) return;
               var e = this.settings_tolerance();
